@@ -2,12 +2,18 @@ from kivy.app import App
 from kivy.uix.widget import Widget
 from kivy.clock import Clock
 from kivy.core.window import Window
-import kivent
-from kivent import GameSystem
+import kivent_core
+import kivent_cymunk
+from kivent_core.gamesystems import GameSystem
+from kivent_core.renderers import texture_manager, VertMesh
 from math import pi, cos, sin
 import triangle
 from numpy import array
 from random import random, randint
+
+import glob
+for fn in glob.glob('./assets/*.png'):
+	texture_manager.load_image(fn)
 
 class BackgroundGenerator(GameSystem):
 
@@ -17,6 +23,7 @@ class BackgroundGenerator(GameSystem):
         '''
         radius_color_dict = {'level#': (even_r, odd_r), (r,g,b,a))}
         '''
+        pos=(0,0)
         x, y = pos
         angle = 2 * pi / sides
         all_verts = []
@@ -30,7 +37,7 @@ class BackgroundGenerator(GameSystem):
         triangles = []
         vert_count = 1
         tri_count = 0
-        tri_a = triangles.append 
+        tri_a = triangles.extend 
         for count in range(levels):
             level = i + 1
             rs, color = radius_color_dict[level]
@@ -66,6 +73,11 @@ class BackgroundGenerator(GameSystem):
                     tri_count += 2
                     c += 1
             i += 1
+        vert_mesh = self.makeVertMesh(all_verts, triangles, vert_data_count=6)
+        return {#'texture': 'asteroid1', 
+            'vert_mesh': vert_mesh, 
+            #'size': (64, 64),
+            'render': True}
         return {'triangles': triangles, 'vertices': all_verts, 
             'vert_count': vert_count, 'tri_count': tri_count, 
             'vert_data_count': 6}
@@ -88,7 +100,7 @@ class BackgroundGenerator(GameSystem):
         triangles = []
         vert_count = 1
         tri_count = 0
-        tri_a = triangles.append 
+        tri_a = triangles.extend 
         for count in range(levels):
             level = i + 1
             r, color = radius_color_dict[level]
@@ -120,6 +132,11 @@ class BackgroundGenerator(GameSystem):
                     tri_count += 2
                     c += 1
             i += 1
+        vert_mesh = self.makeVertMesh(all_verts, triangles, vert_data_count=6)
+        return {#'texture': 'asteroid1', 
+            'vert_mesh': vert_mesh, 
+            #'size': (64, 64),
+            'render': True}
         return {'triangles': triangles, 'vertices': all_verts, 
             'vert_count': vert_count, 'tri_count': tri_count, 
             'vert_data_count': 6}
@@ -144,6 +161,11 @@ class BackgroundGenerator(GameSystem):
                 triangles_a((s+1, 0, 1))
             else:
                 triangles_a((s+1, 0, s+2))
+        vert_mesh = self.makeVertMesh(new_vertices, new_triangles, vert_data_count=6)
+        return {#'texture': 'asteroid1', 
+            'vert_mesh': vert_mesh, 
+            #'size': (64, 64),
+            'render': True}
         return {'triangles': triangles, 'vertices': all_verts, 
             'vert_count': (sides+1), 'tri_count': sides, 'vert_data_count': 6}
 
@@ -159,7 +181,7 @@ class BackgroundGenerator(GameSystem):
         new_vertices = []
         tri_verts = B['vertices']
         nv_ap = new_vertices.append
-        new_ap = new_triangles.append
+        new_ap = new_triangles.extend
         tri_count = 0
         for tri in tri_indices:
             new_ap((tri[0], tri[1], tri[2]))
@@ -169,9 +191,14 @@ class BackgroundGenerator(GameSystem):
             nv_ap([tvert[0], tvert[1], octaves, persistance, scale])
             vert_count += 1
         print vert_count, tri_count
-        return {'triangles': new_triangles, 'vertices': new_vertices, 
-            'vert_count': vert_count, 'tri_count': tri_count, 
-            'vert_data_count': 5}
+        vert_mesh = self.makeVertMesh(new_vertices, new_triangles, vert_data_count=5)
+        return {#'texture': 'asteroid1', 
+            'vert_mesh': vert_mesh, 
+            #'size': (64, 64),
+            'render': True}
+        #return {'triangles': new_triangles, 'vertices': new_vertices, 
+        #    'vert_count': vert_count, 'tri_count': tri_count, 
+        #    'vert_data_count': 5}
 
 
     def draw_triangulated_regular_polygon(self, sides, radius, pos,
@@ -192,7 +219,7 @@ class BackgroundGenerator(GameSystem):
         new_vertices = []
         tri_verts = B['vertices']
         nv_ap = new_vertices.append
-        new_ap = new_triangles.append
+        new_ap = new_triangles.extend
         tri_count = 0
         for tri in tri_indices:
             new_ap((tri[0], tri[1], tri[2]))
@@ -201,6 +228,11 @@ class BackgroundGenerator(GameSystem):
         for tvert in tri_verts:
             nv_ap([tvert[0], tvert[1], octaves, persistance, scale])
             vert_count += 1
+        vert_mesh = self.makeVertMesh(new_vertices, new_triangles, vert_data_count=5)
+        return {#'texture': 'asteroid1', 
+            'vert_mesh': vert_mesh, 
+            #'size': (64, 64),
+            'render': True}
         return {'triangles': new_triangles, 'vertices': new_vertices, 
             'vert_count': vert_count, 'tri_count': tri_count, 
             'vert_data_count': 5}
@@ -226,8 +258,24 @@ class BackgroundGenerator(GameSystem):
                 triangles_a((s+1, 0, 1))
             else:
                 triangles_a((s+1, 0, s+2))
+        vert_mesh = self.makeVertMesh(all_verts, triangles,6)
+        return {#'texture': 'asteroid1', 
+            'vert_mesh': vert_mesh, 
+            #'size': (64, 64),
+            'render': True}
         return {'triangles': triangles, 'vertices': all_verts, 
             'vert_count': (sides+1), 'tri_count': sides, 'vert_data_count': 6}
+    def makeVertMesh(self, all_verts, triangles,vert_data_count=6):
+        #render_system = self.gameworld.systems['renderer']
+        vert_count = len(all_verts)
+        index_count = len(triangles)
+        #attrcount = render_system.attribute_count
+        vert_mesh =  VertMesh(vert_data_count, 
+            vert_count, index_count)
+        vert_mesh.indices = triangles
+        for i in range(vert_count):
+            vert_mesh[i] = all_verts[i]
+        return vert_mesh
 
 
 
@@ -236,12 +284,25 @@ class TestGame(Widget):
         super(TestGame, self).__init__(**kwargs)
         Clock.schedule_once(self.init_game)
 
+    def ensure_startup(self):
+        systems_to_check = ['map', 'renderer', 
+            'position', 'gameview', 'backgrounds']
+        systems = self.gameworld.systems
+        for each in systems_to_check:
+            if each not in systems:
+                print "missing", each
+                return False
+        return True
+
     def init_game(self, dt):
-        self.setup_map()
-        self.setup_states()
-        self.set_state()
-        self.draw_some_stuff()
-        Clock.schedule_interval(self.update, 0)
+        if self.ensure_startup():
+			self.setup_map()
+			self.setup_states()
+			self.set_state()
+			self.draw_some_stuff()
+			Clock.schedule_interval(self.update, 0)
+        else:
+            Clock.schedule_once(self.init_game)
 
 
     def draw_a_blue_star(self, background_system):
@@ -255,7 +316,7 @@ class TestGame(Widget):
             3.: ((4., 4.), (87./255., 253./255., 232./255., 0.)),}
         create_dict = background_system.draw_offset_layered_regular_polygon(pos, 
             levels, sides, middle_color, radius_color_dict)
-        self.gameworld.init_entity({'renderer': create_dict}, ['renderer'])
+        self.gameworld.init_entity({'renderer': create_dict, 'position':pos}, ['position','renderer'])
 
 
     def draw_diamond_star(self, background_system):
@@ -268,7 +329,7 @@ class TestGame(Widget):
             2: (random()*4., (0.866666667, 0.8, 0.9, 0.)),}
         create_dict = background_system.draw_layered_regular_polygon(pos, 
             levels, sides, middle_color, radius_color_dict)
-        self.gameworld.init_entity({'renderer': create_dict}, ['renderer'])
+        self.gameworld.init_entity({'renderer': create_dict, 'position':pos}, ['position','renderer'])
 
     def draw_a_star(self, background_system):
         pos = random()*1920., random()*1080.
@@ -280,7 +341,7 @@ class TestGame(Widget):
             2: ((random()*5., random()*2.), (0.866666667, 0.8, 0.9, 0.)),}
         create_dict = background_system.draw_offset_layered_regular_polygon(pos, 
             levels, sides, middle_color, radius_color_dict)
-        self.gameworld.init_entity({'renderer': create_dict}, ['renderer'])
+        self.gameworld.init_entity({'renderer': create_dict, 'position':pos}, ['position','renderer'])
 
 
     def draw_some_stuff(self):
@@ -294,9 +355,9 @@ class TestGame(Widget):
         create_dict = background_system.draw_triangulated_rectangle(
             1920., 1080., (0., 0.), 4, .5, .0003, '100')
         create_dict['do_texture'] = True
-        create_dict['texture'] = 'assets/planetgradient3.png'
-        self.gameworld.init_entity({'noise_renderer': create_dict}, 
-            ['noise_renderer'])
+        create_dict['texture'] = 'planetgradient3'
+        self.gameworld.init_entity({'noise_renderer': create_dict, 'position':(0,0)}, 
+            ['position','noise_renderer'])
         for x in range(40):
             self.draw_a_star(background_system)
         for x in range(10):
@@ -311,19 +372,19 @@ class TestGame(Widget):
             2: (10, (0.866666667, 0.8, 0.9, 0.)),}
         create_dict = background_system.draw_layered_regular_polygon(pos, 
             levels, sides, middle_color, radius_color_dict)
-        self.gameworld.init_entity({'renderer2': create_dict}, ['renderer2'])
+        self.gameworld.init_entity({'renderer2': create_dict, 'position':pos}, ['position','renderer2'])
         create_dict = background_system.draw_triangulated_regular_polygon(
             20, 100, (150, 150), 6, .5, .001, '75')
         create_dict['do_texture'] = True
-        create_dict['texture'] = 'assets/planetgradient.png'
-        self.gameworld.init_entity({'noise_renderer2': create_dict}, 
-            ['noise_renderer2'])
+        create_dict['texture'] = 'planetgradient'
+        self.gameworld.init_entity({'noise_renderer2': create_dict, 'position':pos}, 
+            ['position','noise_renderer2'])
         create_dict = background_system.draw_triangulated_regular_polygon(
             20, 100, (150, 150), 3, .5, .005, '150')
         create_dict['do_texture'] = True
-        create_dict['texture'] = 'assets/planetgradient2.png'
-        self.gameworld.init_entity({'noise_renderer2': create_dict}, 
-            ['noise_renderer2'])
+        create_dict['texture'] = 'planetgradient2'
+        self.gameworld.init_entity({'noise_renderer2': create_dict, 'position':pos}, 
+            ['position','noise_renderer2'])
 
 
         pos = (800, 550)
@@ -335,19 +396,19 @@ class TestGame(Widget):
             2: (25, (255./255., 255./255., 255./255., 0.)),}
         create_dict = background_system.draw_layered_regular_polygon(pos, 
             levels, sides, middle_color, radius_color_dict)
-        self.gameworld.init_entity({'renderer2': create_dict}, ['renderer2'])
+        self.gameworld.init_entity({'renderer2': create_dict, 'position':pos}, ['position','renderer2'])
         create_dict = background_system.draw_triangulated_regular_polygon(
             30, 300, pos, 4, .2, .001, '100')
         create_dict['do_texture'] = True
-        create_dict['texture'] = 'assets/planetgradient4.png'
-        self.gameworld.init_entity({'noise_renderer2': create_dict}, 
-            ['noise_renderer2'])
+        create_dict['texture'] = 'planetgradient4'
+        self.gameworld.init_entity({'noise_renderer2': create_dict, 'position':pos}, 
+            ['position','noise_renderer2'])
         create_dict = background_system.draw_triangulated_regular_polygon(
             20, 300, pos, 2, .5, .005, '150')
         create_dict['do_texture'] = True
-        create_dict['texture'] = 'assets/planetgradient5.png'
-        self.gameworld.init_entity({'noise_renderer2': create_dict}, 
-            ['noise_renderer2'])
+        create_dict['texture'] = 'planetgradient5'
+        self.gameworld.init_entity({'noise_renderer2': create_dict, 'position':pos}, 
+            ['position','noise_renderer2'])
 
 
 

@@ -52,6 +52,13 @@ TestGame:
         CymunkPhysics:
             gameworld: root.gameworld
             system_id: 'physics'
+        GameView:
+            system_id: 'gameview'
+            focus_entity: False
+            updateable: False
+            gameworld: gameworld
+            pos: root.pos
+            size: root.size
     GameScreenManager:
         id: gamescreenmanager
         size: root.size
