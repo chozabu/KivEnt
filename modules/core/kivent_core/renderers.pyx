@@ -17,6 +17,7 @@ from kivy.graphics.opengl import (glEnable, glBlendFunc, GL_SRC_ALPHA, GL_ONE,
     GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA, GL_DST_COLOR, GL_ONE_MINUS_DST_COLOR,
     glDisable)
 cimport cython
+from random import random
 
 
 cdef class TextureManager:
@@ -424,6 +425,8 @@ class Renderer(GameSystem):
         cdef int batch_ind
         cdef int ent_ind
         for batch_ind in range(num_batches):
+            if random()<.99:
+                continue
             batch = batches[batch_ind]
             batch.update_batch()
             batch_data = batch._batch_data
@@ -439,6 +442,11 @@ class Renderer(GameSystem):
                 render_comp = getattr(entity, system_id)
                 vertex_count = render_comp.vertex_count
                 index_count = render_comp.index_count
+                if 0:#random()<.5:
+                    vert_offset += vertex_count * attribute_count
+                    mesh_index_offset += vertex_count
+                    index_offset += index_count
+                    continue
                 if render_comp._render:
                     pos_comp = entity.position
                     x = pos_comp._x
