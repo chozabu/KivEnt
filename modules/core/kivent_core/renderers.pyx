@@ -648,6 +648,170 @@ class Renderer(GameSystem):
             texture, self.attribute_count, width=w, height=h, copy=copy,
             vert_mesh=vert_mesh)
         return new_component
+'''
+cdef class DirtyRenderComponent(RenderComponent):
+    def __cinit__(self, bool render, str texture_key,
+        int attribute_count, width=None, height=None,
+        vert_mesh=None, copy=False):
+        #super(DirtyRenderComponent, self).__init__(render,texture_key,attribute_count,width,height,vert_mesh,copy)
+        self.is_dirty=True
+        self._render = render
+        self._texture_key = texture_key
+        self._attrib_count = attribute_count
+        if width is not None and height is not None:
+            self._width = width
+            self._height = height
+            self._vert_mesh = vert_mesh = VertMesh(attribute_count, 4, 6)
+            vert_mesh.set_textured_rectangle(width, height,
+                texture_manager.get_uvs(texture_key))
+        elif vert_mesh != None:
+            self._width = 0
+            self._height = 0
+            if not copy:
+                self._vert_mesh = vert_mesh
+            else:
+                self._vert_mesh = new_vert_mesh = VertMesh(attribute_count,
+                    vert_mesh._vert_count, vert_mesh._index_count)
+                new_vert_mesh.copy_vert_mesh(vert_mesh)
+'''
+class DirtyRenderer(Renderer):
+    #def __init__(self, **kwargs):
+    #    super(DirtyRenderer, self).__init__(**kwargs)
+    def update(self, dt):
+        '''Update function where all drawing of entities is performed.
+        Override this method in combination with calculate_vertex_format
+        if you would like to create a renderer with customized behavior.'''
+        cdef bool batch_dirty = False
+        cdef list batches = self.batches
+        cdef int num_batches = len(batches)
+        cdef str system_id = self.system_id
+        cdef RenderBatch batch
+        cdef object gameworld = self.gameworld
+        cdef object entity
+        cdef int entity_id
+        cdef list entities = gameworld.entities
+        cdef list entity_ids
+        cdef RenderComponent render_comp
+        cdef PositionComponent pos_comp
+        cdef RotateComponent rot_comp
+        cdef ScaleComponent scale_comp
+        cdef ColorComponent color_comp
+        cdef int vert_offset
+        cdef int attribute_count = self.attribute_count
+        cdef int vertex_count
+        cdef int index_count
+        cdef int index_offset
+        cdef int mesh_index_offset
+        cdef int n
+        cdef int attr_ind
+        cdef int i
+        cdef float rot
+        cdef float s
+        cdef float r
+        cdef float g
+        cdef float b
+        cdef float a
+        cdef bool do_rotate = self.do_rotate
+        cdef bool do_scale = self.do_scale
+        cdef bool do_color = self.do_color
+        cdef int center_x_index = self._do_center_x
+        cdef int center_y_index = self._do_center_y
+        cdef int rot_index = self._do_rot_index
+        cdef int r_index = self._do_r_index
+        cdef int g_index = self._do_g_index
+        cdef int b_index = self._do_b_index
+        cdef int a_index = self._do_a_index
+        cdef int scale_index = self._do_scale_index
+        cdef float x, y
+        cdef VertMesh vert_mesh
+        cdef float* batch_data
+        cdef float* mesh_data
+        cdef unsigned short* batch_indices
+        cdef unsigned short* mesh_indices
+        cdef int data_index
+        cdef int mesh_index
+        cdef int num_entities
+        cdef int batch_ind
+        cdef int ent_ind
+        for batch_ind in range(num_batches):
+            batch_dirty=False
+            batch = batches[batch_ind]
+            batch.update_batch()
+            batch_data = batch._batch_data
+            batch_indices = batch._batch_indices
+            entity_ids = batch._entity_ids
+            num_entities = len(entity_ids)
+            index_offset = 0
+            vert_offset = 0
+            mesh_index_offset = 0
+            for ent_ind in range(num_entities):
+                entity_id = entity_ids[ent_ind]
+                entity = entities[entity_id]
+                render_comp = getattr(entity, system_id)
+                vertex_count = render_comp.vertex_count
+                index_count = render_comp.index_count
+                if do_scale:
+                    scale_comp = entity.scale
+                    if scale_comp._dirty<1:
+                        vert_offset += vertex_count * attribute_count
+                        mesh_index_offset += vertex_count
+                        index_offset += index_count
+                        continue
+                    scale_comp._dirty-=1
+                batch_dirty=True
+                if render_comp._render:
+                    pos_comp = entity.position
+                    x = pos_comp._x
+                    y = pos_comp._y
+                    if do_rotate:
+                        rot_comp = entity.rotate
+                        rot = rot_comp._r
+                    if do_scale:
+                        scale_comp = entity.scale
+                        s = scale_comp._s
+                    if do_color:
+                        color_comp = entity.color
+                        r = color_comp._r
+                        g = color_comp._g
+                        b = color_comp._b
+                        a = color_comp._a
+                    vert_mesh = render_comp._vert_mesh
+                    mesh_data = vert_mesh._data
+                    mesh_indices = vert_mesh._indices
+                    for i in range(index_count):
+                        batch_indices[i+index_offset] = (
+                            mesh_indices[i] + mesh_index_offset)
+                    for n in range(vertex_count):
+                        for attr_ind in range(attribute_count):
+                            mesh_index = n*attribute_count + attr_ind
+                            data_index = mesh_index + vert_offset
+                            if attr_ind == center_x_index:
+                                batch_data[data_index] = x
+                            elif attr_ind == center_y_index:
+                                batch_data[data_index] = y
+                            elif attr_ind == rot_index:
+                                batch_data[data_index] = rot
+                            elif attr_ind == r_index:
+                                batch_data[data_index] = r
+                            elif attr_ind == b_index:
+                                batch_data[data_index] = b
+                            elif attr_ind == g_index:
+                                batch_data[data_index] = g
+                            elif attr_ind == a_index:
+                                batch_data[data_index] = a
+                            elif attr_ind == scale_index:
+                                batch_data[data_index] = s
+                            else:
+                                batch_data[data_index] = mesh_data[mesh_index]
+                else:
+                    for i in range(index_count):
+                        batch_indices[i+index_offset] = -1
+                vert_offset += vertex_count * attribute_count
+                mesh_index_offset += vertex_count
+                index_offset += index_count
+            if batch_dirty:
+                batch._cmesh.flag_update()
+
 
 @cython.freelist(20)
 cdef class RenderBatch:

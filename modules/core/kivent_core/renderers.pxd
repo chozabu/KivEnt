@@ -9,6 +9,7 @@ cdef class TextureManager:
 
 cdef class RenderComponent:
     cdef bool _render
+    cdef bool _dirty
     cdef str _texture_key
     cdef VertMesh _vert_mesh
     cdef int _attrib_count

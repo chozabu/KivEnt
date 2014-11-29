@@ -29,17 +29,25 @@ cdef class RotateComponent:
         def __set__(self, float value):
             self._r = value
 
+
 @cython.freelist(100)
 cdef class ScaleComponent:
 
     def __cinit__(self, float s):
         self._s = s
+        self._dirty = 10
 
     property s:
         def __get__(self):
             return self._s
         def __set__(self, float value):
             self._s = value
+            self._dirty = 1
+    property dirty:
+        def __get__(self):
+            return self._dirty
+        def __set__(self, int value):
+            self._dirty = value
 
 @cython.freelist(100)
 cdef class PositionComponent:

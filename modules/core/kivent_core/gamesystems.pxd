@@ -1,3 +1,4 @@
+from cpython cimport bool
 cdef class ColorComponent:
     cdef float _r
     cdef float _g
@@ -10,6 +11,7 @@ cdef class PositionComponent:
 
 cdef class ScaleComponent:
     cdef float _s
+    cdef int _dirty
 
 cdef class RotateComponent:
     cdef float _r
