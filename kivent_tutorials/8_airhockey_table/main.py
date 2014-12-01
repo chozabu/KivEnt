@@ -638,6 +638,9 @@ class TestGame(Widget):
             a_paddle_id = self.create_paddle((1920.*.75, 1080.*ypos), color=(0.,0.,1.,1.),player=1)
 
     def draw_some_stuff(self):
+
+        space = self.gameworld.systems['physics'].space
+        space.UseSpatialHash(30.,1000.)
         size = Window.size
         self.pfuncs = {}
         self.paddleIDs = set()
