@@ -737,19 +737,18 @@ class TestGame(Widget):
         ynum=xnum*1060/1740+1
         xstep = (1920-x1*2)/float(xnum-1)
         ystep = (1080-y1*2)/float(ynum-1)
-        from random import random
-        if 1:#random()>.5:
+        airhole_type=settingsDict['airhole_type']
+        if airhole_type=='triangle':
+            make_hole = self.create_air_triangle
+        elif airhole_type=='square':
+            make_hole = self.create_air_square
+        else:
             make_hole = self.create_air_hole
-            #make_hole = self.create_air_triangle
-        '''else:
-            if random()>.5:
-                make_hole = self.create_air_triangle
-            else:
-                make_hole = self.create_air_square'''
         self.airholeids=[]
         aairhole = self.airholeids.append
         for x in range(xnum):
             for y in range(ynum):
+                print airhole_type
                 pos = (x1 + xstep *x, y1 + ystep*y)
                 aairhole(make_hole(pos,airhole_radius))
         self.new_game()
@@ -964,14 +963,13 @@ class TestGame(Widget):
         return self.gameworld.init_entity(create_component_dict,
             component_order)
 
-    def create_air_triangle(self, pos):
+    def create_air_triangle(self, pos,radius=60, collision_radius=0.001):
         from random import random
         x_vel = 0 #randint(-100, 100)
         y_vel = 0 #randint(-100, 100)
         angle = random()*11./7. #radians(randint(-360, 360))
         angular_velocity = 0 #radians(randint(-150, -150))
-        radius=30
-        shape_dict = {'inner_radius': 0, 'outer_radius': radius*.001,
+        shape_dict = {'inner_radius': 0, 'outer_radius': collision_radius,
             'mass': 0, 'offset': (0, 0)}
         col_shape = {'shape_type': 'circle', 'elasticity': .5,
             'collision_type': 3, 'shape_info': shape_dict, 'friction': 1.0}
@@ -997,15 +995,14 @@ class TestGame(Widget):
             'physics', 'renderer', 'lerp_system', 'scale']
         return self.gameworld.init_entity(create_component_dict,
             component_order)
-    def create_air_square(self, pos):
+    def create_air_square(self, pos,radius=60, collision_radius=0.001):
         from random import random
         x_vel = 0 #randint(-100, 100)
         y_vel = 0 #randint(-100, 100)
         angle = 22./14./2. #radians(randint(-360, 360))
         #print angle
         angular_velocity = 0. #radians(randint(-150, -150))
-        radius=60
-        shape_dict = {'inner_radius': 0, 'outer_radius': radius,
+        shape_dict = {'inner_radius': 0, 'outer_radius': collision_radius,
             'mass': 0, 'offset': (0, 0)}
         col_shape = {'shape_type': 'circle', 'elasticity': .5,
             'collision_type': 3, 'shape_info': shape_dict, 'friction': 1.0}
@@ -1031,12 +1028,12 @@ class TestGame(Widget):
             'physics', 'renderer', 'lerp_system', 'scale']
         return self.gameworld.init_entity(create_component_dict,
             component_order)
-    def create_air_hole(self, pos,radius=60):
+    def create_air_hole(self, pos,radius=60, collision_radius=0.001):
         x_vel = 0 #randint(-100, 100)
         y_vel = 0 #randint(-100, 100)
         angle = 0 #radians(randint(-360, 360))
         angular_velocity = 0 #radians(randint(-150, -150))
-        shape_dict = {'inner_radius': 0, 'outer_radius': radius*.001,
+        shape_dict = {'inner_radius': 0, 'outer_radius': collision_radius,
             'mass': 0, 'offset': (0, 0)}
         col_shape = {'shape_type': 'circle', 'elasticity': .5, 
             'collision_type': 3, 'shape_info': shape_dict, 'friction': 1.0}
