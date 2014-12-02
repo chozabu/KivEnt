@@ -1324,13 +1324,13 @@ class TestGame(Widget):
                     paddle.physics.body.apply_impulse(nearvec*100.)
     def update(self, dt):
         if not self.paused:
+            self.gameworld.update(dt)
             simps.update(dt)
             if self.current_menu_ref.sname == 'intro':
                 self.do_ai(dt)
             elif self.current_menu_ref.sname == 'ingame':
                 self.current_menu_ref.update(dt)
             #self.do_airhole_extras(dt)
-            self.gameworld.update(dt)
 
     def setup_states(self):
         self.gameworld.add_state(state_name='main', 
