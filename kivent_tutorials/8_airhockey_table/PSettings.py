@@ -8,6 +8,7 @@ defaultSettingsDict = {
     'goal_thickness':120,
     'airhole_xnum':22,
     'airhole_radius':60,
+    'faded_air_hole_alpha':.075,
     'enable_particles':1,
     'volume_multi':.85,
     'puck_max':2,
