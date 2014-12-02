@@ -459,7 +459,8 @@ class TestGame(Widget):
         ent = self.gameworld.entities[ent2_id]
         color = ent.color
         if arbiter.is_first_contact:
-            simps.spawn_particles_at((pp[0],pp[1]), count=int(1+vol*5),maxvel=5.+vol*25.,color=(color.r,.5,color.b,.9))
+            cp = arbiter.contacts[0].position
+            simps.spawn_particles_at((cp.x,cp.y), count=int(1+vol*5),maxvel=5.+vol*25.,color=(color.r,.5,color.b,.9))
             sounds.play_hitmid(vol)
         else:
             sounds.vol_hitmid(vol)
@@ -510,8 +511,8 @@ class TestGame(Widget):
         vol = min(1,crashforce/50000000)
         if vol<0.01:return
         if arbiter.is_first_contact:
-            pp = arbiter.shapes[0].body.position
-            simps.spawn_particles_at((pp[0],pp[1]), count=int(1+vol*5),maxvel=5.+vol*25.,color=(.8,.5,.8,.9))
+            cp = arbiter.contacts[0].position
+            simps.spawn_particles_at((cp.x,cp.y), count=int(1+vol*5),maxvel=5.+vol*25.,color=(.8,.5,.8,.9))
             sounds.play_hithigh(vol)
         else:
             sounds.vol_hithigh(vol)
