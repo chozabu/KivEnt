@@ -4,6 +4,7 @@ import os, json
 
 defaultSettingsDict = {
     "do_profile":0.,
+    "ai_action_chance":0.001,
     "enable_airhole_extras":0.,
     "observer_points_per_second":200.,
     "goal_height":600,

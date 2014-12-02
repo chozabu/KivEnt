@@ -678,6 +678,7 @@ class TestGame(Widget):
         entities = self.gameworld.entities
         #self.create_color_circle((1920.*.5, 1080.*.5), color=(0.5,0.5,0.5,0.5))
         settingsDict = PSettings.settingsDict
+        self.ai_action_chance = settingsDict['ai_action_chance']
         self.enable_airhole_extras=settingsDict['enable_airhole_extras']
         goal_height=settingsDict['goal_height']
         goal_thickness=settingsDict['goal_thickness']
@@ -1286,7 +1287,7 @@ class TestGame(Widget):
         lerp_system.add_lerp_to_entity(entid,'color','a',.6,1.,'float',callback=self.lerp_callback_airhole)
         lerp_system.add_lerp_to_entity(entid,'scale','s',.6,1.,'float')
     def do_ai(self, dt):
-        if random()>.998:
+        if random()<self.ai_action_chance:
             pos = (randint(1920*0.4,1920*0.6), randint(10,1070))
             if random()>.3:
                 self._action_vortex(pos)
