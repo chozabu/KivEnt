@@ -17,6 +17,9 @@ defaultSettingsDict = {
     'volume_multi':.85,
     'puck_max':2,
     'paddle_max':2,
+    'puck_storm_at_points':8,
+    'wall_duration':14.,
+    'vortex_duration':7.5,
     'vortex_power':.6,
     'vortex_radius':140,
     'vortex_static':1

@@ -124,7 +124,7 @@ class TestGame(Widget):
         for touched_shape in touched_shapes:
             tbody = touched_shape.body
             if tbody.data in self.puckIDs:
-                if (self.blue_score==9 or self.red_score==9) and self.can_storm:
+                if (self.blue_score==self.puck_storm_at_points or self.red_score==self.puck_storm_at_points) and self.can_storm:
                     self.can_storm=False
                     storm_power=800.
                     for i in range(7):
@@ -161,7 +161,7 @@ class TestGame(Widget):
         vortex_id = self.create_floater(wp, mass=mass, collision_type=7, radius=self.vortex_radius,
                                         color=(0.1, .1, 0.1, 0.75))  # radius=points
         pfunc = partial(self.remove_entity, vortex_id, 0.)
-        Clock.schedule_once(pfunc, 7.5)
+        Clock.schedule_once(pfunc, self.vortex_duration)
         return pfunc, vortex_id
 
     def action_vortex(self,wp=None,touch=None):
@@ -182,7 +182,7 @@ class TestGame(Widget):
         wallid = self.draw_wall(25, length, (avg.x, avg.y), (0, 1, 0, 0.5), mass=0, collision_type=2,
                                 texture='lingrad_alt', angle=dist.angle + pi * .5)
         pfunc = partial(self.remove_entity, wallid, 0.)
-        Clock.schedule_once(pfunc, 15)
+        Clock.schedule_once(pfunc, self.wall_duration)
         self.miscIDs.add(wallid)
 
     def action_wall(self,wp=None,touch=None):
@@ -664,6 +664,9 @@ class TestGame(Widget):
         self.vortex_power = settingsDict['vortex_power']
         self.vortex_radius = settingsDict['vortex_radius']
         self.vortex_static = settingsDict['vortex_static']
+        self.vortex_duration = settingsDict['vortex_duration']
+        self.wall_duration = settingsDict['wall_duration']
+        self.puck_storm_at_points = settingsDict['puck_storm_at_points']
 
     def draw_some_stuff(self):
         size = Window.size
