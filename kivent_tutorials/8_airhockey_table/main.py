@@ -675,6 +675,7 @@ class TestGame(Widget):
         entities = self.gameworld.entities
         #self.create_color_circle((1920.*.5, 1080.*.5), color=(0.5,0.5,0.5,0.5))
         settingsDict = PSettings.settingsDict
+        self.enable_airhole_extras=settingsDict['enable_airhole_extras']
         goal_height=settingsDict['goal_height']
         goal_thickness=settingsDict['goal_thickness']
         real_goal_height=goal_height*.8
@@ -1330,7 +1331,8 @@ class TestGame(Widget):
                 self.do_ai(dt)
             elif self.current_menu_ref.sname == 'ingame':
                 self.current_menu_ref.update(dt)
-            #self.do_airhole_extras(dt)
+            if self.enable_airhole_extras == 1:
+                self.do_airhole_extras(dt)
 
     def setup_states(self):
         self.gameworld.add_state(state_name='main', 
