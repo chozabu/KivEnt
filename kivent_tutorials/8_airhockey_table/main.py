@@ -152,15 +152,21 @@ class TestGame(Widget):
                 else:
                     self.top_points+=tbodyspeed
                 #self.observermenu.update_scores()
-    def action_vortex(self,wp=None,touch=None):
-        yspos = touch.spos[1]
+
+    def _action_vortex(self, wp):
         if self.vortex_static:
             mass = 0
         else:
             mass = 1000
-        vortex_id = self.create_floater(wp,mass=mass,collision_type=7,radius=self.vortex_radius,color=(0.1,.1,0.1,0.75))#radius=points
-        pfunc = partial( self.remove_entity, vortex_id,0.)
-        Clock.schedule_once(pfunc,7.5)
+        vortex_id = self.create_floater(wp, mass=mass, collision_type=7, radius=self.vortex_radius,
+                                        color=(0.1, .1, 0.1, 0.75))  # radius=points
+        pfunc = partial(self.remove_entity, vortex_id, 0.)
+        Clock.schedule_once(pfunc, 7.5)
+        return pfunc, vortex_id
+
+    def action_vortex(self,wp=None,touch=None):
+        yspos = touch.spos[1]
+        pfunc, vortex_id = self._action_vortex(wp)
         self.pfuncs[vortex_id]=pfunc
         if yspos<0.5:
             self.bottom_points-=1000
@@ -170,6 +176,15 @@ class TestGame(Widget):
             self.set_observer_action(0)
         #self.observermenu.update_scores()
         super(TestGame, self).on_touch_down(touch)
+
+    def _action_wall(self, avg, dist):
+        length = max(50, min(250, dist.length))
+        wallid = self.draw_wall(25, length, (avg.x, avg.y), (0, 1, 0, 0.5), mass=0, collision_type=2,
+                                texture='lingrad_alt', angle=dist.angle + pi * .5)
+        pfunc = partial(self.remove_entity, wallid, 0.)
+        Clock.schedule_once(pfunc, 15)
+        self.miscIDs.add(wallid)
+
     def action_wall(self,wp=None,touch=None):
         yspos = touch.spos[1]
         #self.create_floater(wp)
@@ -184,12 +199,7 @@ class TestGame(Widget):
         dist=v2d(v2d(wp)-v2d(owp))
         avg=v2d(v2d(wp)+v2d(owp))*.5
         print dist
-        length = max(50,min( 250, dist.length))
-
-        wallid = self.draw_wall(25,length,(avg.x,avg.y),(0,1,0,0.5),mass=0,collision_type=2, texture='lingrad_alt', angle=dist.angle+pi*.5)
-        pfunc = partial( self.remove_entity, wallid,0.)
-        Clock.schedule_once(pfunc,15)
-        self.miscIDs.add(wallid)
+        self._action_wall(avg, dist)
         if yspos<0.5:
             self.bottom_points-=5000
             self.set_observer_action(1)
@@ -1241,6 +1251,14 @@ class TestGame(Widget):
         lerp_system.add_lerp_to_entity(entid,'color','a',.6,1.,'float',callback=self.lerp_callback_airhole)
         lerp_system.add_lerp_to_entity(entid,'scale','s',.6,1.,'float')
     def do_ai(self, dt):
+        if random()>.998:
+            pos = (randint(1920*0.4,1920*0.6), randint(10,1070))
+            if random()>.3:
+                self._action_vortex(pos)
+            else:
+                dist = cy.Vec2d(randint(-400,400), randint(-400,400))
+                self._action_wall(cy.Vec2d(pos),dist)
+
         paddlenum = len(self.paddleIDs)
         for paddleid in self.paddleIDs:
             if randint(0,100)>91+paddlenum:
