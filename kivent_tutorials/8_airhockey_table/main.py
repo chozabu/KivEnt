@@ -686,6 +686,11 @@ class TestGame(Widget):
         self.draw_wall_decoration(20., 1080, (1920*0.4, 1080/2), (1., .5, 0., 0.3))
         self.draw_wall_decoration(20., 1080, (1920*0.6, 1080/2), (0., .5, 1., 0.3))
 
+        self.draw_invis_wall(1920,1080*3,(-1920/2,0))
+        self.draw_invis_wall(1920,1080*3,(1920+1920/2,0))
+        self.draw_invis_wall(1920*3,1080,(0,-1080/2))
+        self.draw_invis_wall(1920*3,1080,(0,1080+1080/2))
+
         #left goal walls
         self.draw_vwalls(20., wall_height, (goal_thickness, wall_middle), None, texture='lingrad_alt')
         self.draw_vwalls(20., wall_height, (goal_thickness, 1080-wall_middle), None, texture='lingrad_alt')
@@ -917,6 +922,27 @@ class TestGame(Widget):
         component_order = ['position', 'rotate', 'color',
             'physics', 'renderer','lerp_system','scale']
         return self.gameworld.init_entity(create_component_dict, 
+            component_order)
+    def draw_invis_wall(self, width, height, pos, color=None, mass=0, collision_type=10, texture='lingrad', angle=0):
+        x_vel = 0 #randint(-100, 100)
+        y_vel = 0 #randint(-100, 100)
+        shape_dict = {'width': width, 'height': height,
+            'mass': mass, 'offset': (0, 0)}
+        col_shape = {'shape_type': 'box', 'elasticity': .8,
+            'collision_type': collision_type, 'shape_info': shape_dict, 'friction': 1.0}
+        col_shapes = [col_shape]
+        physics_component = {'main_shape': 'box',
+            'velocity': (x_vel, y_vel),
+            'position': pos, 'angle': angle,
+            'angular_velocity': 0,
+            'vel_limit': 1500.,
+            'ang_vel_limit': radians(200.),
+            'mass': mass, 'col_shapes': col_shapes}
+        create_component_dict = {'physics': physics_component,
+            'position': pos, 'rotate': 0}
+        component_order = ['position', 'rotate',
+            'physics']
+        return self.gameworld.init_entity(create_component_dict,
             component_order)
     def draw_wall_decoration(self, width, height, pos, color, texture=None):
         create_component_dict = {
