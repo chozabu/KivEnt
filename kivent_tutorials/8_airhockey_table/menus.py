@@ -375,8 +375,9 @@ class ObserverPanel(ScatterPlaneLayout):
         l.size_hint = (1,.1)
         l.pos_hint = {'y':.1}
         self.add_widget(l)
-        sratio = self.width/1920.
-        ssize = 150.*sratio*8.
+        size = Window.size
+        wscale = float(size[1])/1080.
+        ssize = 80.*wscale
 
         '''l = Button(background_normal='assets/png/observer_speedup.png', size_hint=(None,None), allow_stretch=True, pos_hint={"x":-0.3,"y":0})
         l.width=l.height=ssize
@@ -490,9 +491,11 @@ class PlayerPanel(MirroredPanel):
         bl = BoxLayout(orientation='horizontal')
 
 
+        size = Window.size
+        wscale = float(size[1])/1080.
         settingsDict = PSettings.settingsDict
         goal_thickness = settingsDict['goal_thickness']
-        player_button_size = goal_thickness-11
+        player_button_size = (goal_thickness-11)*wscale
 
         bl.size_hint = (1,None)
         bl.height = player_button_size
