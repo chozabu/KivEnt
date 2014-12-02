@@ -692,6 +692,9 @@ class TestGame(Widget):
         self.draw_invis_wall(1920*3,1080,(0,1080+1080/2))
 
         #left goal walls
+        self.draw_invis_wall(goal_thickness, wall_height, (goal_thickness/2, wall_middle))
+        self.draw_invis_wall(goal_thickness, wall_height, (goal_thickness/2, 1080-wall_middle))
+
         self.draw_vwalls(20., wall_height, (goal_thickness, wall_middle), None, texture='lingrad_alt')
         self.draw_vwalls(20., wall_height, (goal_thickness, 1080-wall_middle), None, texture='lingrad_alt')
         self.draw_vwalls(20., goal_height, (-10, 1080/2), None, texture='lingrad_alt',segnum=3)
@@ -699,6 +702,9 @@ class TestGame(Widget):
         self.draw_wall(goal_thickness, 20., (goal_thickness/2., 1080/2-goal_height/2), None, texture='lingrad')
 
         #right goal walls
+        self.draw_invis_wall(goal_thickness, wall_height, (1920-goal_thickness/2, wall_middle))
+        self.draw_invis_wall(goal_thickness, wall_height, (1920-goal_thickness/2, 1080-wall_middle))
+
         self.draw_vwalls(20., wall_height, (1920-goal_thickness, wall_middle), None, texture='lingrad_alt')
         self.draw_vwalls(20., wall_height, (1920-goal_thickness, 1080-wall_middle), None, texture='lingrad_alt')
         self.draw_vwalls(20., goal_height, (1920+10, 1080/2), None, texture='lingrad_alt',segnum=3)
