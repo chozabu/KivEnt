@@ -34,7 +34,7 @@ def loadSettings():
                 settingsDict = json.load(fo)
 
     for a,b in defaultSettingsDict.iteritems():
-        if a not in settingsDict or 1:
+        if a not in settingsDict:
             settingsDict[a]=b
     saveSettings()
 
