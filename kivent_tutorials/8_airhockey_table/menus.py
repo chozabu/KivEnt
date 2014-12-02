@@ -125,7 +125,13 @@ class PauseMenu(BoxLayout, basemenu):
         self.height = gameref.height
 
 
-        self.add_widget( BoxLayout() )
+        self.add_widget( BoxLayout(size_hint=(1,.4)) )
+        b = BoButton(text="?", font_size=30)
+        b.bind(on_press=self.aboutpressed)
+        b.size_hint = (.05,.125)
+        b.pos_hint = {'y':.25+.125,'x':.48}
+        self.add_widget(b)
+        self.add_widget( BoxLayout(size_hint=(1,.4)))
         l = BoButton(text="Resume", font_size=40)
         l.bind(on_press=self.pausepressed)
         #l.size_hint = (.25,.25)
@@ -144,6 +150,43 @@ class PauseMenu(BoxLayout, basemenu):
     def quitpressed(self, instance=None):
         gameref = self.gameref
         gameref.setMenu(IntroMenu(self.gameref))
+    def aboutpressed(self, instance=None):
+        gameref = self.gameref
+        gameref.setMenu(AboutMenu(self.gameref))
+    def on_activate(self):
+        self.gameref.paused=True
+    def on_deactivate(self):
+        self.gameref.paused=False
+    def on_back(self):
+        pass
+        #self.gameref.setMenu(GameUIMenu(self.gameref))
+class AboutMenu(BoxLayout, basemenu):
+    def __init__(self, gameref, **kwargs):
+        super(AboutMenu, self).__init__(**kwargs)
+        self.sname = 'pause'
+        self.orientation = 'vertical'
+        self.gameref = gameref
+        self.width = gameref.width
+        self.height = gameref.height
+
+        self.add_widget( BoxLayout() )
+
+        l = Label(text="Light Hockey", font_size=60)
+        self.add_widget(l)
+        l = Label(text="By Chozabu & Kovak", font_size=20)
+        self.add_widget(l)
+        l = Label(text="Using KivEnt, Kivy & CyMunk", font_size=20)
+        self.add_widget(l)
+        b = BoButton(text="Back", font_size=30)
+        b.bind(on_press=self.quitpressed)
+        b.size_hint = (.25,.25)
+        b.pos_hint = {'y':.25+.125,'x':.25+.125}
+        self.add_widget(b)
+        self.add_widget( BoxLayout() )
+        self.mainlabel = l
+    def quitpressed(self, instance=None):
+        gameref = self.gameref
+        gameref.setMenu(PauseMenu(self.gameref))
     def on_activate(self):
         self.gameref.paused=True
     def on_deactivate(self):
