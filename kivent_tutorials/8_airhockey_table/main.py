@@ -748,7 +748,6 @@ class TestGame(Widget):
         aairhole = self.airholeids.append
         for x in range(xnum):
             for y in range(ynum):
-                print airhole_type
                 pos = (x1 + xstep *x, y1 + ystep*y)
                 aairhole(make_hole(pos,airhole_radius))
         self.new_game()
