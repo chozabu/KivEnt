@@ -488,12 +488,21 @@ class PlayerPanel(MirroredPanel):
         #sratio = self.width/1920.
         #ssize = 150.*sratio*8.
         bl = BoxLayout(orientation='horizontal')
-        bl.size_hint = (1,.15)
+
+
+        settingsDict = PSettings.settingsDict
+        goal_thickness = settingsDict['goal_thickness']
+        player_button_size = goal_thickness-11
+
+        bl.size_hint = (1,None)
+        bl.height = player_button_size
+
         #self.size_hint = (1,1)
         #self.width = 1080
         #self.height= 100
 
-        l = Button(background_normal='assets/png/pause.png', size_hint=(1,1), allow_stretch=True)#, pos_hint={"x":-0.3,"y":0})
+        l = Button(background_normal='assets/png/pause.png', size_hint=(None,1), allow_stretch=True)#, pos_hint={"x":-0.3,"y":0})
+        l.width = player_button_size
         #l.width=l.height=ssize
         l.bind(on_press=self.pause_pressed)
         bl.add_widget(BoxLayout(size_hint=(.8,1)))
