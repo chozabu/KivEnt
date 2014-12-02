@@ -1358,6 +1358,8 @@ if __name__ == '__main__':
     PSettings.loadSettings()
     simps.enable_particles = PSettings.settingsDict['enable_particles']
     sounds.volume_multi = PSettings.settingsDict['volume_multi']
-    import cProfile
-    cProfile.run('YourAppNameApp().run()', pfile)
-    #YourAppNameApp().run()
+    if PSettings.settingsDict['do_profile'] == 1:
+        import cProfile
+        cProfile.run('YourAppNameApp().run()', pfile)
+    else:
+        YourAppNameApp().run()

@@ -3,6 +3,7 @@ __author__ = 'chozabu'
 import os, json
 
 defaultSettingsDict = {
+    "do_profile":0.,
     "observer_points_per_second":200.,
     "goal_height":600,
     'goal_thickness':120,
