@@ -166,12 +166,11 @@ class TestGame(Widget):
         self.vortexIDs.add(vortex_id)
         pfunc = partial(self.remove_entity, vortex_id, 0.)
         Clock.schedule_once(pfunc, self.vortex_duration)
-        return pfunc, vortex_id
+        self.pfuncs[vortex_id]=pfunc
 
     def action_vortex(self,wp=None,touch=None):
         yspos = touch.spos[1]
-        pfunc, vortex_id = self._action_vortex(wp)
-        self.pfuncs[vortex_id]=pfunc
+        self._action_vortex(wp)
         if yspos<0.5:
             self.bottom_points-=1000
             self.set_observer_action(1)
