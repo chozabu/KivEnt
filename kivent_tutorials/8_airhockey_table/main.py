@@ -11,6 +11,7 @@ import kivent_core
 import kivent_cymunk
 import cymunk as cy
 import particles as simps
+import vortexparticles as vimps
 
 from kivent_core.renderers import texture_manager, VertMesh
 texture_manager.load_image('assets/png/lingrad.png')
@@ -35,6 +36,7 @@ class TestGame(Widget):
     def __init__(self, **kwargs):
         super(TestGame, self).__init__(**kwargs)
         simps.gameref = self
+        vimps.gameref = self
         self.current_menu_ref = None
         self.bottom_action_name = "speedup"
         self.top_action_name = "speedup"
@@ -159,7 +161,9 @@ class TestGame(Widget):
         else:
             mass = 1000
         vortex_id = self.create_floater(wp, mass=mass, collision_type=7, radius=self.vortex_radius,
-                                        color=(0.1, .1, 0.1, 0.75))  # radius=points
+                                        color=(0.1, .1, 0.1, self.vortex_alpha))  # radius=points
+
+        self.vortexIDs.add(vortex_id)
         pfunc = partial(self.remove_entity, vortex_id, 0.)
         Clock.schedule_once(pfunc, self.vortex_duration)
         return pfunc, vortex_id
@@ -663,6 +667,8 @@ class TestGame(Widget):
         settingsDict = PSettings.settingsDict
         self.vortex_power = settingsDict['vortex_power']
         self.vortex_radius = settingsDict['vortex_radius']
+        self.vortex_particle_chance = settingsDict['vortex_particle_chance']
+        self.vortex_alpha = settingsDict['vortex_alpha']
         self.vortex_static = settingsDict['vortex_static']
         self.vortex_duration = settingsDict['vortex_duration']
         self.wall_duration = settingsDict['wall_duration']
@@ -673,6 +679,7 @@ class TestGame(Widget):
         self.pfuncs = {}
         self.paddleIDs = set()
         self.puckIDs = set()
+        self.vortexIDs = set()
         self.miscIDs = set()
         self.created_entities = created_entities = []
         entities = self.gameworld.entities
@@ -876,6 +883,8 @@ class TestGame(Widget):
             self.puckIDs.remove(entity_id)
         if entity_id in self.miscIDs:
             self.miscIDs.remove(entity_id)
+        if entity_id in self.vortexIDs:
+            self.vortexIDs.remove(entity_id)
         #self.gameworld.remove_entity(entity_id)
         Clock.schedule_once(partial(
             self.gameworld.timed_remove_entity, entity_id))
@@ -1286,6 +1295,15 @@ class TestGame(Widget):
         #lerp_system.add_lerp_to_entity(entid,'color',choice(['r','g','b']),.7,1.,'float',callback=self.lerp_callback_airhole)
         lerp_system.add_lerp_to_entity(entid,'color','a',.6,1.,'float',callback=self.lerp_callback_airhole)
         lerp_system.add_lerp_to_entity(entid,'scale','s',.6,1.,'float')
+    def do_vortex_particles(self, dt):
+        vimps.update(dt)
+        for vortexID in self.vortexIDs:
+            if random()<self.vortex_particle_chance:
+                vortex = self.gameworld.entities[vortexID]
+                ep = vortex.position
+                pos=(ep.x,ep.y)
+                vimps.spawn_particles_at(pos,radlimit=self.vortex_radius)
+
     def do_ai(self, dt):
         if random()<self.ai_action_chance:
             pos = (randint(1920*0.4,1920*0.6), randint(10,1070))
@@ -1331,6 +1349,7 @@ class TestGame(Widget):
         if not self.paused:
             self.gameworld.update(dt)
             simps.update(dt)
+            self.do_vortex_particles(dt)
             if self.current_menu_ref.sname == 'intro':
                 self.do_ai(dt)
             elif self.current_menu_ref.sname == 'ingame':

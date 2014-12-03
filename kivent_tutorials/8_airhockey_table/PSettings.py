@@ -21,6 +21,8 @@ defaultSettingsDict = {
     'puck_storm_at_points':8,
     'wall_duration':14.,
     'vortex_duration':7.5,
+    'vortex_alpha':0.3,
+    'vortex_particle_chance':.4,
     'vortex_power':.6,
     'vortex_radius':140,
     'vortex_static':1
