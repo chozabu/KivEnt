@@ -644,11 +644,14 @@ class GameView(GameSystem):
         self._touch_count = 0
         self._touches = []
         self.canvas = RenderContext()
-        '''with self.canvas.before:
-            PushMatrix()
-            self.trans = Translate(10000, 0, 0)
+        with self.canvas.before:
+            self.cb = Callback(self.setup_gl_context)
         with self.canvas.after:
-            PopMatrix()'''
+            self.cb = Callback(self.reset_gl_context)
+    def setup_gl_context(self, *args):
+        glEnable(GL_DEPTH_TEST)
+    def reset_gl_context(self, *args):
+        glDisable(GL_DEPTH_TEST)
 
     def get_camera_centered(self, map_size, camera_size, camera_scale):
         x = max((camera_size[0]*camera_scale - map_size[0])/2., 0.)
