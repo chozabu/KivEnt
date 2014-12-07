@@ -634,8 +634,6 @@ class GameView(GameSystem):
     updateable = BooleanProperty(True)
     scale_min = NumericProperty(.5)
     scale_max = NumericProperty(8.)
-    x_mul = NumericProperty(.0017)
-    y_mul = NumericProperty(.0017)
     camera_speed_multiplier = NumericProperty(1.0)
     render_system_order = ListProperty([])
     move_speed_multiplier = NumericProperty(1.0)
@@ -666,16 +664,16 @@ class GameView(GameSystem):
         camera_size = self.size
         pos = self.pos
         camera_scale = self.camera_scale
-        print "camera_pos=",camera_pos
         if self.do_perspective:
-            cs=camera_scale*.5
+            cs=1.*.5
             proj = self.matrix.view_clip(
                 -camera_size[0]*cs,
                 camera_size[0]*cs,
                 -camera_size[1]*cs,
                 camera_size[1]*cs,
                 .5, 100, 1)
-            proj.translate(camera_pos[0]*self.x_mul/camera_scale,camera_pos[1]*self.y_mul/camera_scale,0.)
+            proj.scale(1./camera_scale,1./camera_scale,1.)
+            proj.translate(camera_pos[0]/camera_size[0]/camera_scale,camera_pos[1]/camera_size[1]/camera_scale,0.)
         else:
             proj = self.matrix.view_clip(
                 -camera_pos[0],
