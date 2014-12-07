@@ -44,9 +44,10 @@ cdef class ScaleComponent:
 @cython.freelist(100)
 cdef class PositionComponent:
     
-    def __cinit__(self, float x, float y):
+    def __cinit__(self, float x, float y, float z):
         self._x = x
         self._y = y
+        self._z = z
 
     property x:
         def __get__(self):
@@ -59,6 +60,12 @@ cdef class PositionComponent:
             return self._y
         def __set__(self, float value):
             self._y = value
+
+    property z:
+        def __get__(self):
+            return self._z
+        def __set__(self, float value):
+            self._z = value
 
 @cython.freelist(100)
 cdef class ColorComponent:
@@ -239,7 +246,11 @@ class PositionSystem(GameSystem):
         '''
         x = pos[0]
         y = pos[1]
-        new_component = PositionComponent.__new__(PositionComponent, x, y)
+        if len(pos)>2:
+            z=pos[2]
+        else:
+            z=0
+        new_component = PositionComponent.__new__(PositionComponent, x, y, z)
         return new_component
 
 class ScaleSystem(GameSystem):

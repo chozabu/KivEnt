@@ -7,6 +7,7 @@ cdef class ColorComponent:
 cdef class PositionComponent:
     cdef float _x
     cdef float _y
+    cdef float _z
 
 cdef class ScaleComponent:
     cdef float _s

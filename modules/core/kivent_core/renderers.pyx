@@ -437,7 +437,8 @@ class Renderer(GameSystem):
             batch.update_batch()
             batch_data = batch._batch_data
             batch_indices = batch._batch_indices
-            entity_ids = batch._entity_ids
+            #entity_ids = batch._entity_ids
+            entity_ids = sorted(batch._entity_ids, key=lambda ent: entities[ent].position.z)
             num_entities = len(entity_ids)
             index_offset = 0
             vert_offset = 0
