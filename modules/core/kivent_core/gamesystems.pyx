@@ -9,6 +9,8 @@ from kivy.uix.effectwidget import EffectWidget
 from functools import partial
 from kivy.graphics import RenderContext
 from kivy.graphics.transformation import Matrix
+from kivy.graphics.opengl import *
+from kivy.graphics import *
 cimport cython
 from kivy.vector import Vector
 
@@ -621,6 +623,7 @@ class GameView(GameSystem):
 
     '''
     system_id = StringProperty('default_gameview')
+    do_perspective = BooleanProperty(False)
     do_scroll_lock = BooleanProperty(True)
     camera_pos = ListProperty((0, 0))
     camera_scale = NumericProperty(1.0)
@@ -631,6 +634,8 @@ class GameView(GameSystem):
     updateable = BooleanProperty(True)
     scale_min = NumericProperty(.5)
     scale_max = NumericProperty(8.)
+    x_mul = NumericProperty(.0017)
+    y_mul = NumericProperty(.0017)
     camera_speed_multiplier = NumericProperty(1.0)
     render_system_order = ListProperty([])
     move_speed_multiplier = NumericProperty(1.0)
@@ -641,6 +646,11 @@ class GameView(GameSystem):
         self._touch_count = 0
         self._touches = []
         self.canvas = RenderContext()
+        '''with self.canvas.before:
+            PushMatrix()
+            self.trans = Translate(10000, 0, 0)
+        with self.canvas.after:
+            PopMatrix()'''
 
     def get_camera_centered(self, map_size, camera_size, camera_scale):
         x = max((camera_size[0]*camera_scale - map_size[0])/2., 0.)
@@ -656,12 +666,23 @@ class GameView(GameSystem):
         camera_size = self.size
         pos = self.pos
         camera_scale = self.camera_scale
-        proj = self.matrix.view_clip(
-            -camera_pos[0], 
-            camera_size[0]*camera_scale + -camera_pos[0], 
-            -camera_pos[1], 
-            camera_size[1]*camera_scale + -camera_pos[1],
-            0., 100, 0)
+        print "camera_pos=",camera_pos
+        if self.do_perspective:
+            cs=camera_scale*.5
+            proj = self.matrix.view_clip(
+                -camera_size[0]*cs,
+                camera_size[0]*cs,
+                -camera_size[1]*cs,
+                camera_size[1]*cs,
+                .5, 100, 1)
+            proj.translate(camera_pos[0]*self.x_mul/camera_scale,camera_pos[1]*self.y_mul/camera_scale,0.)
+        else:
+            proj = self.matrix.view_clip(
+                -camera_pos[0],
+                camera_size[0]*camera_scale + -camera_pos[0],
+                -camera_pos[1],
+                camera_size[1]*camera_scale + -camera_pos[1],
+                0., 100, 0)
 
         self.canvas['projection_mat'] = proj
 

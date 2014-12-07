@@ -15,7 +15,7 @@ import json
 from kivy.graphics.opengl import (glEnable, glBlendFunc, GL_SRC_ALPHA, GL_ONE, 
     GL_ZERO, GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR, GL_ONE_MINUS_SRC_ALPHA, 
     GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA, GL_DST_COLOR, GL_ONE_MINUS_DST_COLOR,
-    glDisable)
+    glDisable, GL_DEPTH_TEST)
 cimport cython
 
 
@@ -317,6 +317,7 @@ class Renderer(GameSystem):
         self._do_scale_index = -1
         self._do_center_x = 4
         self._do_center_y = 5
+        self._do_center_z = 6
         with self.canvas.before:
             Callback(self._set_blend_func)
         with self.canvas.after:
@@ -356,9 +357,9 @@ class Renderer(GameSystem):
         vertex_format = [
             ('vPosition', 2, 'float'),
             ('vTexCoords0', 2, 'float'),
-            ('vCenter', 2, 'float'),
+            ('vCenter', 3, 'float'),
             ]
-        attribute_count = 6
+        attribute_count = 7
         if self.do_rotate:
             vertex_format.append(('vRotation', 1, 'float'))
             self._do_rot_index = attribute_count
@@ -415,13 +416,14 @@ class Renderer(GameSystem):
         cdef bool do_color = self.do_color
         cdef int center_x_index = self._do_center_x
         cdef int center_y_index = self._do_center_y
+        cdef int center_z_index = self._do_center_z
         cdef int rot_index = self._do_rot_index
         cdef int r_index = self._do_r_index
         cdef int g_index = self._do_g_index
         cdef int b_index = self._do_b_index
         cdef int a_index = self._do_a_index
         cdef int scale_index = self._do_scale_index
-        cdef float x, y
+        cdef float x, y, z
         cdef VertMesh vert_mesh
         cdef float* batch_data
         cdef float* mesh_data
@@ -432,13 +434,14 @@ class Renderer(GameSystem):
         cdef int num_entities
         cdef int batch_ind
         cdef int ent_ind
+        #glEnable(GL_DEPTH_TEST)
         for batch_ind in range(num_batches):
             batch = batches[batch_ind]
             batch.update_batch()
             batch_data = batch._batch_data
             batch_indices = batch._batch_indices
             #entity_ids = batch._entity_ids
-            entity_ids = sorted(batch._entity_ids, key=lambda ent: entities[ent].position.z)
+            entity_ids = sorted(batch._entity_ids, key=lambda ent: -entities[ent].position.z)
             num_entities = len(entity_ids)
             index_offset = 0
             vert_offset = 0
@@ -453,6 +456,7 @@ class Renderer(GameSystem):
                     pos_comp = entity.position
                     x = pos_comp._x
                     y = pos_comp._y
+                    z = pos_comp._z
                     if do_rotate:
                         rot_comp = entity.rotate
                         rot = rot_comp._r
@@ -479,6 +483,8 @@ class Renderer(GameSystem):
                                 batch_data[data_index] = x
                             elif attr_ind == center_y_index:
                                 batch_data[data_index] = y
+                            elif attr_ind == center_z_index:
+                                batch_data[data_index] = z
                             elif attr_ind == rot_index:
                                 batch_data[data_index] = rot
                             elif attr_ind == r_index:
@@ -500,6 +506,7 @@ class Renderer(GameSystem):
                 mesh_index_offset += vertex_count
                 index_offset += index_count
             batch._cmesh.flag_update()
+        #glDisable(GL_DEPTH_TEST)
 
     def remove_entity(self, int entity_id):
         cdef list entities = self.gameworld.entities
