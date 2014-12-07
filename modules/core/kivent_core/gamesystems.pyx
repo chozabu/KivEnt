@@ -626,6 +626,7 @@ class GameView(GameSystem):
     do_perspective = BooleanProperty(False)
     do_scroll_lock = BooleanProperty(True)
     camera_pos = ListProperty((0, 0))
+    camera_z = NumericProperty(0.5)
     camera_scale = NumericProperty(1.0)
     focus_entity = BooleanProperty(False)
     do_touch_zoom = BooleanProperty(False)
@@ -676,7 +677,7 @@ class GameView(GameSystem):
                 camera_size[1]*cs,
                 .5, 100, 1)
             proj.scale(1./camera_scale,1./camera_scale,1.)
-            proj.translate(camera_pos[0]/camera_size[0]/camera_scale,camera_pos[1]/camera_size[1]/camera_scale,0.)
+            proj.translate(camera_pos[0]/camera_size[0]/camera_scale,camera_pos[1]/camera_size[1]/camera_scale,self.camera_z)
         else:
             proj = self.matrix.view_clip(
                 -camera_pos[0],
