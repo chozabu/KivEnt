@@ -771,6 +771,8 @@ class GameView(GameSystem):
     def get_camera_center(self):
         '''Returns the current center point of the cameras view'''
         cx, cy = self.camera_pos
+        if self.do_perspective:
+            return (-cx,-cy)
         size = self.size
         camera_scale = self.camera_scale
         sw, sh = size[0] * camera_scale *.5, size[1] * camera_scale * .5
@@ -801,8 +803,12 @@ class GameView(GameSystem):
         camera_size = self.size
         camera_scale = self.camera_scale
         camera_pos = self.camera_pos
-        self.camera_pos[0] = -pos[0] + camera_size[0]*.5*camera_scale
-        self.camera_pos[1] = -pos[1] + camera_size[1]*.5*camera_scale
+        if self.do_perspective:
+            self.camera_pos[0] = -pos[0]
+            self.camera_pos[1] = -pos[1]
+        else:
+            self.camera_pos[0] = -pos[0] + camera_size[0]*.5*camera_scale
+            self.camera_pos[1] = -pos[1] + camera_size[1]*.5*camera_scale
 
 
     def on_touch_move(self, touch):
@@ -832,6 +838,7 @@ class GameView(GameSystem):
                         self.camera_scale = self.scale_min
                     else:
                         self.camera_scale = new_scale
+                    #if not self.do_perspective:
                     self.look_at(anchor_touch.ud['world_pos'])
                     
 
