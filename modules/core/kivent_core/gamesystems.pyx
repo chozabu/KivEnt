@@ -651,7 +651,8 @@ class GameView(GameSystem):
             self.cb = Callback(self.reset_gl_context)
     def setup_gl_context(self, *args):
         glEnable(GL_DEPTH_TEST)
-        glDepthFunc(GL_LEQUAL)
+        if self.do_perspective:
+            glDepthFunc(GL_LEQUAL)
     def reset_gl_context(self, *args):
         glDisable(GL_DEPTH_TEST)
 
