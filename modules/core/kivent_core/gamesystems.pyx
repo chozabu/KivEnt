@@ -627,7 +627,9 @@ class GameView(GameSystem):
     do_scroll_lock = BooleanProperty(True)
     camera_pos = ListProperty((0, 0))
     camera_z = NumericProperty(0.5)
+    m_cam_z = NumericProperty(0.0)
     camera_scale = NumericProperty(1.0)
+    near_plane = NumericProperty(1.0)
     focus_entity = BooleanProperty(False)
     do_touch_zoom = BooleanProperty(False)
     do_scroll = BooleanProperty(True)
@@ -650,11 +652,14 @@ class GameView(GameSystem):
         with self.canvas.after:
             self.cb = Callback(self.reset_gl_context)
     def setup_gl_context(self, *args):
+        #PushMatrix()
         glEnable(GL_DEPTH_TEST)
         if self.do_perspective:
             glDepthFunc(GL_LEQUAL)
+            #Translate(0,0,self.m_cam_z)
     def reset_gl_context(self, *args):
         glDisable(GL_DEPTH_TEST)
+        #PopMatrix()
 
     def get_camera_centered(self, map_size, camera_size, camera_scale):
         x = max((camera_size[0]*camera_scale - map_size[0])/2., 0.)
@@ -671,14 +676,19 @@ class GameView(GameSystem):
         pos = self.pos
         camera_scale = self.camera_scale
         if self.do_perspective:
-            cs=1.*.5
-            proj = self.matrix.view_clip(
-                -camera_size[0]*cs,
-                camera_size[0]*cs,
-                -camera_size[1]*cs,
-                camera_size[1]*cs,
-                .5, 100, 1)
-            proj.scale(1./camera_scale,1./camera_scale,1.)
+            if 0:
+                cs=1.*.5
+                proj = self.matrix.view_clip(
+                    -camera_size[0]*cs,
+                    camera_size[0]*cs,
+                    -camera_size[1]*cs,
+                    camera_size[1]*cs,
+                    .5, 100, 1)
+            else:
+                proj = Matrix()
+                proj.perspective(90, 1.0, self.near_plane, 3000)
+                proj.scale(1./camera_size[0], 1./camera_size[1], 1.)
+            proj.scale(1./camera_scale, 1./camera_scale, 1.)
             proj.translate(camera_pos[0]/camera_size[0]/camera_scale,camera_pos[1]/camera_size[1]/camera_scale,self.camera_z)
         else:
             proj = self.matrix.view_clip(
