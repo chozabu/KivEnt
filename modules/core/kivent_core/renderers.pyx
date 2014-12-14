@@ -293,6 +293,7 @@ class Renderer(GameSystem):
     do_rotate = BooleanProperty(False)
     do_color = BooleanProperty(False)
     do_scale = BooleanProperty(False)
+    z_sort = NumericProperty(0)
     attribute_count = NumericProperty(4)
     maximum_vertices = NumericProperty(20000)
     shader_source = StringProperty('positionshader.glsl')
@@ -340,6 +341,9 @@ class Renderer(GameSystem):
 
     def on_shader_source(self, instance, value):
         self.canvas.shader.source = value
+
+    def on_do_z_sort(self, instance, value):
+        self._
 
     def on_do_rotate(self, instance, value):
         self.vertex_format = self.calculate_vertex_format()
@@ -434,13 +438,15 @@ class Renderer(GameSystem):
         cdef int num_entities
         cdef int batch_ind
         cdef int ent_ind
+        cdef int z_sort = self.z_sort
         #glEnable(GL_DEPTH_TEST)
         for batch_ind in range(num_batches):
             batch = batches[batch_ind]
             batch.update_batch()
             batch_data = batch._batch_data
             batch_indices = batch._batch_indices
-            batch._entity_ids = sorted(batch._entity_ids, key=lambda ent: -entities[ent].position.z)
+            if z_sort != 0:
+                batch._entity_ids = sorted(batch._entity_ids, key=lambda ent: entities[ent].position.z*z_sort)
             entity_ids = batch._entity_ids
             num_entities = len(entity_ids)
             index_offset = 0
