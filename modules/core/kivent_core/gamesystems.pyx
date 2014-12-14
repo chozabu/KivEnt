@@ -654,8 +654,8 @@ class GameView(GameSystem):
     def setup_gl_context(self, *args):
         #PushMatrix()
         glEnable(GL_DEPTH_TEST)
-        if self.do_perspective:
-            glDepthFunc(GL_LEQUAL)
+        glDepthFunc(GL_LEQUAL)
+        #if self.do_perspective:
             #Translate(0,0,self.m_cam_z)
     def reset_gl_context(self, *args):
         glDisable(GL_DEPTH_TEST)
