@@ -687,8 +687,8 @@ class GameView(GameSystem):
             else:
                 proj = Matrix()
                 proj.perspective(90, 1.0, self.near_plane, 3000)
-                proj.scale(1./camera_size[0], 1./camera_size[1], 1.)
-            proj.scale(1./camera_scale, 1./camera_scale, 1.)
+                proj.scale(1./camera_size[0], 1./camera_size[1], 1./camera_size[1])
+            proj.scale(1./camera_scale, 1./camera_scale, 1./camera_scale)
             proj.translate(camera_pos[0]/camera_size[0]/camera_scale,camera_pos[1]/camera_size[1]/camera_scale,self.camera_z)
         else:
             proj = self.matrix.view_clip(
